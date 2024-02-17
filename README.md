@@ -21,3 +21,9 @@ Despite being few features, I'm gonna need to remember concepts such as:
 - Componentization
 
 ## Layout
+
+<img src="./gifs/cap1.gif" />
+
+<img src="./gifs/cap2.gif" />
+
+<img src="./gifs/cap3.gif" />
