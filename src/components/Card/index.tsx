@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import InputNumber from '../Form/InputNumber';
-import { CardContainer, Labels, Price, PricingRow, PricingRowActions } from "./styles";
 import { ShoppingCart } from '@phosphor-icons/react';
 import { useCart } from '../../contexts/CartContext';
+import { formatMoney } from '../../utils';
 import { CoffeeType } from '../../@types/Coffee';
+import { CardContainer, Labels, Price, PricingRow, PricingRowActions } from "./styles";
 
 type CardProps = CoffeeType;
 
@@ -44,7 +45,7 @@ const Card = ({
             <img src={image} alt={title} />
 
             <Labels>
-                {tags.map(tag => (<span>{tag}</span>))}
+                {tags.map(tag => (<span key={tag}>{tag}</span>))}
             </Labels>
 
             <h3>{title}</h3>
@@ -54,7 +55,7 @@ const Card = ({
             <PricingRow>
                 <Price>
                     <span>R$</span>
-                    {price}
+                    {formatMoney(price, false)}
                 </Price>
 
                 <PricingRowActions>
