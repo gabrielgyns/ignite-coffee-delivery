@@ -3,10 +3,16 @@ import {
     ReactNode,
     useContext,
     useEffect,
-    useReducer,
     useState,
 } from "react";
 import { CoffeeType } from "../@types/Coffee";
+import { FormInputs } from "../pages/Checkout";
+import { useNavigate } from "react-router-dom";
+
+interface TOrders extends FormInputs {
+    id: string;
+    cartItems: CartItemsProps[];
+}
 
 type CartContextType = {
     cart: CartItemsProps[];
@@ -15,6 +21,8 @@ type CartContextType = {
     removeQuantity: (item: CoffeeType, quantity?: number) => void;
     removeItemFromCart: (id: string) => void;
     getCartTotal: () => number;
+    addOrder: (order: FormInputs) => void;
+    orders: TOrders[];
 };
 
 export const CartContext = createContext({} as CartContextType);
@@ -28,6 +36,8 @@ interface CartItemsProps extends CoffeeType {
 }
 
 export function CartContextProvider({ children }: CartContextProviderProps) {
+    const navigate = useNavigate();
+
     const [cart, setCart] = useState<CartItemsProps[]>(() => {
         const storedStateAsJSON = localStorage.getItem(
             '@coffee-delivery:cart-state-1.0.0',
@@ -40,13 +50,48 @@ export function CartContextProvider({ children }: CartContextProviderProps) {
           return [];
     });
 
+    const [orders, setOrders] = useState<TOrders[]>(() => {
+        const storedStateAsJSON = localStorage.getItem(
+            '@coffee-delivery:orders-state-1.0.0',
+          );
+    
+          if (storedStateAsJSON) {
+            return JSON.parse(storedStateAsJSON);
+          };
+    
+          return [];
+    });
+
     useEffect(() => {
         if (cart) {
           const stateJSON = JSON.stringify(cart)
     
           localStorage.setItem('@coffee-delivery:cart-state-1.0.0', stateJSON);
         }
-      }, [cart])
+      }, [cart]);
+
+      useEffect(() => {
+        if (orders) {
+          const stateJSON = JSON.stringify(orders)
+    
+          localStorage.setItem('@coffee-delivery:orders-state-1.0.0', stateJSON);
+        }
+      }, [orders]);
+
+      function addOrder(order: any) {
+        const newId = new Date().getTime();
+
+        const newOrders = [...orders, {
+            ...order,
+            id: newId,
+            cartItems: cart,
+        }];
+
+        setOrders(newOrders);
+        setCart([] as CartItemsProps[]);
+
+        navigate(`/success/${newId}`);
+    }
 
     function addItemToCart(item: CoffeeType, quantity = 1) {
         const itemExists = cart.find((cartItem) => cartItem.id === item.id);
@@ -122,6 +167,8 @@ export function CartContextProvider({ children }: CartContextProviderProps) {
                 removeItemFromCart,
                 removeQuantity,
                 getCartTotal,
+                addOrder,
+                orders
             }}
         >
             {children}
